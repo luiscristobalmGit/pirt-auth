@@ -6,11 +6,13 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "Usuarios", schema = "PIRT")
+@Table(name = "Usuarios", catalog = "PIRT", schema = "dbo")
+
 public class Usuario {
     @Id
-    @Column(name = "Id")
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "Id", columnDefinition = "INTEGER") // Especifica el tipo exacto
+    private Integer id;  // Cambiado de Long a Integer
 
     @Column(name = "Nombre", length = 100)
     private String nombre;
@@ -21,14 +23,14 @@ public class Usuario {
     @Column(name = "Materno", length = 100)
     private String materno;
 
-    @Column(name = "Cuenta", length = 50, unique = true)
+    @Column(columnDefinition = "nchar(50)") // o el tamaño adecuado
     private String cuenta;
 
     @Column(name = "Contrasena", length = 100)
     private String contrasena;
 
-    @Column(name = "Activo")
-    private Boolean activo;
+    @Column(name = "Activo", columnDefinition = "INT")
+    private Integer activo; 
 
     @Column(name = "FechaCreacion")
     private LocalDateTime fechaCreacion;

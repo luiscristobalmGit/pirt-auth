@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/usuarios")
+@CrossOrigin(origins = {"http://localhost", "http://localhost:8100", "http://localhost:4200", "http://localhost:8080"})
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
@@ -17,21 +18,24 @@ public class UsuarioController {
         this.usuarioService = usuarioService;
     }
 
-    /**
-     * Endpoint para validar un usuario con cuenta y contraseña.
-     * POST /usuarios/validar
-     * 
-     * @param usuarioDTO Objeto con 'cuenta' y 'contrasena'
-     * @return ResultadoValidacion con estado y rol (si aplica)
-     */
     @PostMapping("/validar")
     public ResponseEntity<ResultadoValidacion> validarUsuario(@RequestBody UsuarioDTO usuarioDTO) {
-        ResultadoValidacion resultado = usuarioService.validarUsuario(usuarioDTO);
+        try {
+            ResultadoValidacion resultado = usuarioService.validarUsuario(usuarioDTO);
 
-        if (resultado.isValido()) {
-            return ResponseEntity.ok(resultado); // HTTP 200 OK
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(resultado); // HTTP 401 Unauthorized
+            if (resultado.isValido()) {
+                return ResponseEntity.ok(resultado);
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(resultado);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    // Endpoint adicional para verificar que el servicio está arriba
+    @GetMapping("/health-check")
+    public ResponseEntity<String> healthCheck() {
+        return ResponseEntity.ok("Servicio de usuarios funcionando correctamente");
     }
 }
