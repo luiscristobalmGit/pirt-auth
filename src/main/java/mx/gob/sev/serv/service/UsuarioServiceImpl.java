@@ -4,6 +4,7 @@ import mx.gob.sev.serv.dto.ResultadoValidacion;
 import mx.gob.sev.serv.dto.UsuarioDTO;
 import mx.gob.sev.serv.dto.UsuarioHashDTO;
 import mx.gob.sev.serv.repository.UsuarioRepository;
+import mx.gob.sev.serv.util.JwtTokenUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,10 +20,14 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtTokenUtil jwtTokenUtil;
 
-    public UsuarioServiceImpl(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
+    public UsuarioServiceImpl(UsuarioRepository usuarioRepository, 
+                            PasswordEncoder passwordEncoder,
+                            JwtTokenUtil jwtTokenUtil) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtTokenUtil = jwtTokenUtil;
     }
 
     @Override
@@ -58,7 +63,11 @@ public class UsuarioServiceImpl implements UsuarioService {
                     : usuarioDTO.getContrasena().equals(usuario.getHash());
 
             return credencialesValidas
-                    ? new ResultadoValidacion(true, usuario.getIdRol(), "Autenticación exitosa")
+                    ? new ResultadoValidacion(
+                        true, 
+                        usuario.getIdRol(), 
+                        "Autenticación exitosa",
+                        jwtTokenUtil.generateToken(usuarioDTO.getCuenta(), usuario.getIdRol()))
                     : new ResultadoValidacion(false, null, "Credenciales inválidas");
 
         } catch (Exception e) {

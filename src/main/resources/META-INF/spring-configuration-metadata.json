@@ -1,0 +1,35 @@
+{
+  "groups": [
+    {
+      "name": "jwt",
+      "type": "mx.gob.sev.serv.config.JwtProperties",
+      "sourceType": "mx.gob.sev.serv.config.JwtProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "jwt.secret",
+      "type": "java.lang.String",
+      "description": "Secret key for JWT token generation",
+      "sourceType": "mx.gob.sev.serv.config.JwtProperties"
+    },
+    {
+      "name": "jwt.expiration",
+      "type": "java.lang.Long",
+      "description": "Expiration time for JWT tokens in milliseconds",
+      "sourceType": "mx.gob.sev.serv.config.JwtProperties",
+      "defaultValue": 86400000
+    }
+  ],
+  "hints": [
+    {
+      "name": "jwt.secret",
+      "values": [
+        {
+          "value": "TuClaveSecretaMuySeguraYComplejaQueDebeSerLargaMinimo64Caracteres",
+          "description": "Recommended secure secret key"
+        }
+      ]
+    }
+  ]
+}
