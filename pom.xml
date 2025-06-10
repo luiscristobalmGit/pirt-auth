@@ -15,6 +15,7 @@
     <groupId>mx.gob.sev.serv</groupId>
     <artifactId>pirt-auth</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>war</packaging> <!-- Cambiar de jar a war -->
     <name>pirt-auth</name>
     <description>Servicio de autenticación con JWT y SQL Server</description>
 
@@ -59,6 +60,13 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+
+        <!-- Añadir dependencia para servlet API (necesaria para WAR) -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!-- SQL Server JDBC Driver -->
@@ -124,6 +132,7 @@
     </dependencies>
 
     <build>
+        <finalName>${project.artifactId}</finalName>
         <plugins>
             <!-- Spring Boot Plugin -->
             <plugin>
@@ -136,6 +145,16 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                </configuration>
+            </plugin>
+
+            <!-- Plugin para empaquetar como WAR -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.4.0</version>
+                <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
                 </configuration>
             </plugin>
 

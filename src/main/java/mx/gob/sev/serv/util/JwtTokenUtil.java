@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,9 +18,11 @@ import java.util.function.Function;
 @Component
 public class JwtTokenUtil {
     private final JwtProperties jwtProperties;
+    private final SecretKey secretKey;
 
     public JwtTokenUtil(JwtProperties jwtProperties) {
         this.jwtProperties = jwtProperties;
+        this.secretKey = Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8));
     }
 
     public String generateToken(String username, Long idRol) {
@@ -29,14 +32,12 @@ public class JwtTokenUtil {
     }
 
     private String createToken(Map<String, Object> claims, String subject) {
-        SecretKey key = Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes());
-        
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + jwtProperties.getExpiration()))
-                .signWith(key, SignatureAlgorithm.HS256)
+                .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -57,16 +58,18 @@ public class JwtTokenUtil {
         return extractClaim(token, Claims::getExpiration);
     }
 
+    public Long extractRol(String token) {
+        return extractClaim(token, claims -> claims.get("rol", Long.class));
+    }
+
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
     private Claims extractAllClaims(String token) {
-        SecretKey key = Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes());
-        
         return Jwts.parserBuilder()
-                .setSigningKey(key)
+                .setSigningKey(secretKey)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();

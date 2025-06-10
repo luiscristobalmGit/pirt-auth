@@ -10,18 +10,10 @@ public class CorsConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(@NonNull CorsRegistry registry) {
-        registry.addMapping("/api/**")
+        // Configuración mínima ya que CORS se maneja principalmente en SecurityConfig
+        registry.addMapping("/**")
                 .allowedOrigins("*")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
-                .allowedHeaders("*")
-                .exposedHeaders("Authorization", "Content-Disposition")
-                .allowCredentials(true)
-                .maxAge(3600);
-        
-        // Configuración adicional para Swagger UI
-        registry.addMapping("/swagger-ui/**")
-                .allowedOrigins("*")
-                .allowedMethods("GET")
+                .allowedMethods("*")
                 .maxAge(3600);
     }
 }
