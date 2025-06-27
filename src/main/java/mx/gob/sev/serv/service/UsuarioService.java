@@ -1,8 +1,9 @@
 package mx.gob.sev.serv.service;
 
 import mx.gob.sev.serv.dto.UsuarioHashDTO;
-//import mx.gob.sev.serv.dto.UsuarioDTO;
 
 public interface UsuarioService {
+    UsuarioHashDTO validarCredenciales(String cuenta, String contrasena);
     UsuarioHashDTO obtenerDetallesUsuario(String cuenta);
+    void migrarContrasena(String cuenta, String contrasenaPlana);
 }

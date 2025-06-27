@@ -15,12 +15,10 @@ public class DatabaseTestController {
     public String testConnection() {
         try {
             Object result = entityManager.createNativeQuery("SELECT 1").getSingleResult();
-            return "✅ Conexión exitosa a PIRT. Resultado: " + result + "\n" +
-                   "Usuario: " + entityManager.createNativeQuery("SELECT CURRENT_USER").getSingleResult() + "\n" +
-                   "Esquema: " + entityManager.createNativeQuery("SELECT SCHEMA_NAME()").getSingleResult();
+            return "✅ Conexión exitosa. Resultado: " + result + "\n" +
+                   "Usuario: " + entityManager.createNativeQuery("SELECT CURRENT_USER").getSingleResult();
         } catch (Exception e) {
-            return "❌ Error de conexión:\n" + e.getMessage() + "\n\n" +
-                   "Detalle técnico:\n" + e.getClass().getName();
+            return "❌ Error de conexión: " + e.getMessage();
         }
     }
 }

@@ -7,7 +7,6 @@ import mx.gob.sev.serv.dto.UsuarioHashDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
-
 import java.util.Optional;
 
 @Repository
@@ -28,44 +27,36 @@ public class UsuarioRepositoryImpl implements UsuarioRepositoryCustom {
                 .registerStoredProcedureParameter("Cuenta", String.class, ParameterMode.IN)
                 .setParameter("Cuenta", cuenta);
 
-            if (!query.execute()) {
-                logger.warn("SP ejecutado pero no retornó resultados");
+            query.execute();
+
+            Object[] result = (Object[]) query.getSingleResult();
+            
+            if (result == null || result.length < 5) {
                 return Optional.empty();
             }
 
-            Object[] row = (Object[]) query.getSingleResult();
-            if (row == null || row.length < 5) {
-                logger.warn("Resultado del SP incompleto");
+            String hash = result[0] != null ? result[0].toString() : null;
+            Integer idTipoRol = result[1] != null ? ((Number) result[1]).intValue() : null;
+            Integer idUsuario = result[2] != null ? ((Number) result[2]).intValue() : null;
+            Integer esBCrypt = result[3] != null ? ((Number) result[3]).intValue() : 0;
+            Integer usuarioValido = result[4] != null ? ((Number) result[4]).intValue() : 0;
+
+            // Manejo de errores desde el SP
+            if (result.length > 5 && result[5] != null && ((Number) result[5]).intValue() != 0) {
+                Integer codigoError = ((Number) result[5]).intValue();
+                String mensajeError = result.length > 6 && result[6] != null ? result[6].toString() : "Error desconocido";
+                return Optional.of(new UsuarioHashDTO(codigoError, mensajeError));
+            }
+
+            if (hash == null || idUsuario == null) {
                 return Optional.empty();
             }
 
-            UsuarioHashDTO result = mapRowToUsuarioHashDTO(row);
-            return Optional.ofNullable(result);
+            return Optional.of(new UsuarioHashDTO(hash, idTipoRol, idUsuario, esBCrypt, usuarioValido));
 
         } catch (Exception e) {
-            logger.error("Error al ejecutar SP 'sp_ObtenerHashUsuario'", e);
-            return Optional.of(new UsuarioHashDTO(-1, "Error en el servidor: " + e.getMessage()));
-        }
-    }
-
-    private UsuarioHashDTO mapRowToUsuarioHashDTO(Object[] row) {
-        try {
-            String hash = row[0] != null ? row[0].toString() : null;
-            Long idRol = row[1] != null ? ((Number) row[1]).longValue() : null;
-            Long idUsuario = row[2] != null ? ((Number) row[2]).longValue() : null;
-            boolean esBCrypt = row[3] != null && ((Number) row[3]).intValue() == 1;
-            boolean usuarioValido = row[4] != null && ((Number) row[4]).intValue() == 1;
-
-            if (row.length > 5 && row[5] != null) {
-                int codigoError = ((Number) row[5]).intValue();
-                String mensajeError = row.length > 6 ? row[6].toString() : "Error desconocido";
-                return new UsuarioHashDTO(codigoError, mensajeError);
-            }
-
-            return new UsuarioHashDTO(hash, idRol, idUsuario, esBCrypt, usuarioValido);
-        } catch (Exception e) {
-            logger.error("Error mapeando resultado del SP", e);
-            return new UsuarioHashDTO(-4, "Error procesando resultado");
+            logger.error("Error al ejecutar SP para cuenta {}: {}", cuenta, e.getMessage(), e);
+            return Optional.of(new UsuarioHashDTO(500, "Error en el servidor"));
         }
     }
 }

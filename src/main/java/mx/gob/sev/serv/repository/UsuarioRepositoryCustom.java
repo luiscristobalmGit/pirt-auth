@@ -1,7 +1,6 @@
 package mx.gob.sev.serv.repository;
 
 import mx.gob.sev.serv.dto.UsuarioHashDTO;
-
 import java.util.Optional;
 
 public interface UsuarioRepositoryCustom {

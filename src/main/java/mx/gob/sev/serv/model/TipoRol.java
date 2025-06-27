@@ -3,38 +3,22 @@ package mx.gob.sev.serv.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @Entity
-@Table(name = "Usuarios", schema = "dbo")
-public class Usuario {
+@Table(name = "TipoRol", schema = "dbo")
+public class TipoRol {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "Id")
     private Integer id;
     
-    @Column(name = "Nombre", nullable = false, length = 50)
+    @Column(name = "TipoRol", nullable = false, length = 50, unique = true)
     private String nombre;
-    
-    @Column(name = "Paterno", length = 50)
-    private String paterno;
-    
-    @Column(name = "Materno", length = 50)
-    private String materno;
-    
-    @Column(name = "Cuenta", unique = true, nullable = false, length = 20)
-    private String cuenta;
-    
-    @Column(name = "Contrasena", nullable = false, length = 255)
-    private String contrasena;
     
     @Column(name = "Activo", nullable = false)
     private Integer activo = 1;
-    
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Rol> roles;
     
     @Column(name = "FechaCreacion", updatable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now();
