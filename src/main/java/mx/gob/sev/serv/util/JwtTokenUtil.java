@@ -2,14 +2,13 @@ package mx.gob.sev.serv.util;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,30 +23,24 @@ public class JwtTokenUtil {
     @Value("${jwt.expiration}")
     private long expiration;
 
-    private Key getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secret);
-        return Keys.hmacShaKeyFor(keyBytes);
-    }
-
     public String generateToken(String username, String rol) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("rol", rol);
-        return createToken(claims, username);
-    }
-
-    private String createToken(Map<String, Object> claims, String subject) {
+        
         return Jwts.builder()
                 .claims(claims)
-                .subject(subject)
-                .issuedAt(new Date(System.currentTimeMillis()))
+                .subject(username)
+                .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .signWith(getSigningKey())
                 .compact();
     }
 
-    public Boolean validateToken(String token, UserDetails userDetails) {
+    public boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        return (username != null && 
+                username.equals(userDetails.getUsername()) && 
+                !isTokenExpired(token));
     }
 
     public String extractUsername(String token) {
@@ -58,24 +51,33 @@ public class JwtTokenUtil {
         return extractClaim(token, claims -> claims.get("rol", String.class));
     }
 
-    public Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
-    }
-
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+    private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
     private Claims extractAllClaims(String token) {
         return Jwts.parser()
-                .setSigningKey(getSigningKey())
+                .verifyWith(getSigningKey())
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
-    private Boolean isTokenExpired(String token) {
+    private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
+    }
+
+    private Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
+    }
+
+    private SecretKey getSigningKey() {
+        // Verificar que la clave tenga al menos 256 bits (32 caracteres Base64)
+        if (secret.length() < 32) {
+            throw new IllegalArgumentException("La clave secreta debe tener al menos 32 caracteres (256 bits)");
+        }
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 }

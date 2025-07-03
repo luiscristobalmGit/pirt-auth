@@ -147,7 +147,20 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-crypto</artifactId>
             <version>5.7.3</version> <!-- o la versión que uses -->
+        </dependency>       
+
+        <!-- Para el logging -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+        <!-- Para trabajar con Map -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>        
+
     </dependencies>
 
     <build>

@@ -28,33 +28,42 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, 
-                                   HttpServletResponse response, 
-                                   FilterChain filterChain) 
+    protected void doFilterInternal(HttpServletRequest request,
+                                   HttpServletResponse response,
+                                   FilterChain filterChain)
             throws ServletException, IOException {
         
-        final String authorizationHeader = request.getHeader("Authorization");
+        final String authHeader = request.getHeader("Authorization");
+        
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            String jwt = authorizationHeader.substring(7);
-            String username = jwtTokenUtil.extractUsername(jwt);
+        try {
+            final String jwt = authHeader.substring(7);
+            final String username = jwtTokenUtil.extractUsername(jwt);
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
 
                 if (jwtTokenUtil.validateToken(jwt, userDetails)) {
-                    UsernamePasswordAuthenticationToken authentication = 
+                    UsernamePasswordAuthenticationToken authToken = 
                         new UsernamePasswordAuthenticationToken(
-                            userDetails, 
-                            null, 
+                            userDetails,
+                            null,
                             userDetails.getAuthorities());
                     
-                    authentication.setDetails(
+                    authToken.setDetails(
                         new WebAuthenticationDetailsSource().buildDetails(request));
                     
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }
+        } catch (Exception e) {
+            logger.error("Cannot set user authentication", e);
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT token");
+            return;
         }
         
         filterChain.doFilter(request, response);

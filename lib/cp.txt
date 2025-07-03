@@ -1,0 +1,7 @@
+# Crea el archivo con rutas convertidas
+win_path=$(cygpath -w "/d/xampp/htdocs/Proyectos/JAVA/pirt-auth/lib")
+cat > cp.txt <<EOF
+.
+${win_path}\\spring-security-crypto-6.5.1.jar
+${win_path}\\spring-security-core-6.5.1.jar
+EOF

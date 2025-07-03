@@ -1,0 +1,3 @@
+.
+../../../../lib/spring-security-crypto-6.5.1.jar
+../../../../lib/spring-security-core-6.5.1.jar

@@ -27,21 +27,16 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String cuenta) throws UsernameNotFoundException {
-        Usuario usuario = usuarioRepository.findByCuenta(cuenta)
-            .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + cuenta));
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Usuario usuario = usuarioRepository.findByCuenta(username.trim())
+            .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
         
-        if (usuario.getActivo() != 1) {
-            throw new UsernameNotFoundException("Usuario inactivo: " + cuenta);
-        }
-
-        return new User(
+        return new org.springframework.security.core.userdetails.User(
             usuario.getCuenta(),
             usuario.getContrasena(),
-            usuario.getRoles().stream()
-                .filter(rol -> rol.getActivo() == 1)
-                .map(rol -> new SimpleGrantedAuthority("ROLE_" + rol.getTipoRol().getNombre()))
-                .collect(Collectors.toList())
+            usuario.getActivo() == 1,
+            true, true, true, // cuentas no expiradas, bloqueadas, credenciales no expiradas
+            getAuthorities(usuario.getRoles())
         );
     }
 
@@ -50,8 +45,8 @@ public class CustomUserDetailsService implements UserDetailsService {
             .filter(rol -> rol.getActivo() == 1)
             .map(rol -> {
                 String nombreRol = rol.getTipoRol().getNombre().trim().toUpperCase();
-                if (!nombreRol.startsWith("ROLE_")) {
-                    nombreRol = "ROLE_" + nombreRol;
+                if (!nombreRol.startsWith("ROL_")) {
+                    nombreRol = "ROL_" + nombreRol;
                 }
                 return new SimpleGrantedAuthority(nombreRol);
             })

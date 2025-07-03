@@ -3,7 +3,6 @@ package mx.gob.sev.serv.dto;
 import jakarta.validation.constraints.NotBlank;
 
 public class LoginRequest {
-    
     @NotBlank(message = "La cuenta es requerida")
     private String cuenta;
     
