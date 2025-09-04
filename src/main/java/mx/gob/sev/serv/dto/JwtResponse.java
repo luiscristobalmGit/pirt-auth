@@ -4,11 +4,13 @@ public class JwtResponse {
     private String token;
     private String username;
     private String rol;
+    private Integer idUsuario;  // Nuevo campo
 
-    public JwtResponse(String token, String username, String rol) {
+    public JwtResponse(String token, String username, String rol, Integer idUsuario) {
         this.token = token;
         this.username = username;
         this.rol = rol;
+        this.idUsuario = idUsuario;
     }
 
     // Getters
@@ -22,5 +24,9 @@ public class JwtResponse {
 
     public String getRol() {
         return rol;
+    }
+
+    public Integer getIdUsuario() {
+        return idUsuario;
     }
 }

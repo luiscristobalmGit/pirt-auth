@@ -27,7 +27,7 @@ public class JpaConfig {
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(EntityManagerFactoryBuilder builder) {
         return builder
                 .dataSource(dataSource)
-                .packages("mx.gob.sev.serv.model") // Cambiado a packages() en lugar de packagesToScan()
+                .packages("mx.gob.sev.serv.model")
                 .persistenceUnit("default")
                 .build();
     }

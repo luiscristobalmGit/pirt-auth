@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.3</version> <!-- Actualizado a la última versión -->
+        <version>3.2.0</version> <!-- Cambiado a 3.2.0 para coincidir con Spring Security -->
         <relativePath/>
     </parent>
 
@@ -23,8 +23,9 @@
         <java.version>17</java.version>
         <mssql.jdbc.version>11.2.3.jre17</mssql.jdbc.version>
         <hikari.version>5.1.0</hikari.version>
-        <springdoc.version>2.5.0</springdoc.version>
-        <lombok.version>1.18.32</lombok.version>
+        <springdoc.version>2.3.0</springdoc.version> <!-- Ajustado para Spring Boot 3.2.0 -->
+        <lombok.version>1.18.30</lombok.version> <!-- Versión estable -->
+        <jjwt.version>0.12.5</jjwt.version> <!-- Añadido para JWT -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
@@ -43,8 +44,7 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-            <version>3.2.0</version>
+            <artifactId>spring-boot-starter-security</artifactId> <!-- Eliminada versión específica -->
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -89,18 +89,18 @@
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
-            <version>0.12.5</version>
+            <version>${jjwt.version}</version>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-impl</artifactId>
-            <version>0.12.5</version>
+            <version>${jjwt.version}</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>
-            <version>0.12.5</version>
+            <version>${jjwt.version}</version>
             <scope>runtime</scope>
         </dependency>
 
@@ -131,36 +131,23 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-test-autoconfigure</artifactId>
-            <scope>test</scope>
-        </dependency>        
         
+        <!-- Spring Security Crypto -->
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-crypto</artifactId>
-            <version>5.7.3</version> <!-- o la versión que uses -->
         </dependency>       
 
-        <!-- Para el logging -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-
-        <!-- Para trabajar con Map -->
+        <!-- Jackson -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>        
-
     </dependencies>
 
     <build>

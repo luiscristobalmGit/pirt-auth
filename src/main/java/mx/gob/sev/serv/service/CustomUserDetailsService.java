@@ -2,10 +2,10 @@ package mx.gob.sev.serv.service;
 
 import mx.gob.sev.serv.model.Usuario;
 import mx.gob.sev.serv.model.Rol;
+import mx.gob.sev.serv.seguridad.UsuarioDetalles;
 import mx.gob.sev.serv.repository.UsuarioRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -29,13 +29,14 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Usuario usuario = usuarioRepository.findByCuenta(username.trim())
-            .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+            .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
         
-        return new org.springframework.security.core.userdetails.User(
-            usuario.getCuenta(),
-            usuario.getContrasena(),
-            usuario.getActivo() == 1,
-            true, true, true, // cuentas no expiradas, bloqueadas, credenciales no expiradas
+        if (usuario.getActivo() != 1) {
+            throw new UsernameNotFoundException("Usuario inactivo: " + username);
+        }
+
+        return new UsuarioDetalles(
+            usuario,
             getAuthorities(usuario.getRoles())
         );
     }
@@ -45,8 +46,8 @@ public class CustomUserDetailsService implements UserDetailsService {
             .filter(rol -> rol.getActivo() == 1)
             .map(rol -> {
                 String nombreRol = rol.getTipoRol().getNombre().trim().toUpperCase();
-                if (!nombreRol.startsWith("ROL_")) {
-                    nombreRol = "ROL_" + nombreRol;
+                if (!nombreRol.startsWith("ROLE_")) {
+                    nombreRol = "ROLE_" + nombreRol;
                 }
                 return new SimpleGrantedAuthority(nombreRol);
             })
